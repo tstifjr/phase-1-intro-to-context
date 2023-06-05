@@ -1,9 +1,5 @@
 // Your code here
 
-let twoRows = [
-    ["moe", "sizlak", "barkeep", 2],
-    ["bartholomew", "simpson", "scamp", 3]
-]
 function createEmployeeRecord(recordArray) {
     return {
         firstName: recordArray[0],
@@ -16,12 +12,9 @@ function createEmployeeRecord(recordArray) {
 }
 
 function createEmployeeRecords(arrayOfrecordArrays) {
-    const objArray = [];
-    //console.log(arrayOfrecordArrays);
+    const objArray = [];;
     for (let record of arrayOfrecordArrays) {
-        //console.log(recordArray);
         objArray.push(createEmployeeRecord(record))
-        //console.log(objArray);
     }
     return objArray;
 }
@@ -49,11 +42,27 @@ function createTimeOutEvent(recordObj, timeStamp) {
 }
 
 function hoursWorkedOnDate(record, date) {
+   //optimized around find time stamp instance equal to desired date
    const timeInArray = record.timeInEvents;
    const timeOutArray = record.timeOutEvents;
-   const curDateInRec = timeInArray.filter(object => object.date === date );
-   const curDateOutRec = timeOutArray.filter(object => object.date === date );
-    return (curDateOutRec[0].hour - curDateInRec[0].hour)/100;
+   const tsInObjOfDate = timeInArray.find(object => object.date === date );
+   const tsOutObjOfDate = timeOutArray.find(object => object.date === date );
+    return (tsOutObjOfDate.hour - tsInObjOfDate.hour)/100;
+
+    //bad code:::::
+    // const InDateTimeArr = record.timeInEvents.map(entry => {
+    //     return [entry.date, entry.hour];
+    // })
+    // console.log(InDateTimeArr);
+    // const filterIn = InDateTimeArr.find(arrE => arrE[0] === date);
+    // console.log(filterIn);
+    // const OutDateTimeArr = record.timeOutEvents.map(entry => {
+    //     return [entry.date, entry.hour];
+    // })
+    // const filterOut = OutDateTimeArr.find(arrE => arrE[0] === date);
+    // return (filterOut[1] - filterIn[1])/100;
+
+
 }
 
 function wagesEarnedOnDate(record, date){
@@ -61,48 +70,33 @@ function wagesEarnedOnDate(record, date){
 }
 
 function allWagesFor(record){
-    let totalWages = 0;
-    const dateArr = [];
     const recOfTimeInArr = record.timeInEvents;
-    //const recOfTimeOutArr = record.timeOutEvents;
-    recOfTimeInArr.forEach(timeInEv => {
-        dateArr.push(timeInEv.date)
-        totalWages += wagesEarnedOnDate(record, timeInEv.date);
-    });
-    return totalWages
+    const dateArr = recOfTimeInArr.map(timeInEv =>{  ///this code creates an array of dates for each timeIn event
+        return timeInEv.date;
+    })
+
+    return dateArr.reduce((wage, date) => { //performs wagesEarned function for each date clocked and accumulates total results
+        return wage + wagesEarnedOnDate(record, date)
+    },0)
+
+    ///less optimal code below:::
+    // let totalWages = 0;
+    // recOfTimeInArr.forEach(timeInEv => {
+    //     dateArr.push(timeInEv.date)
+    //     totalWages += wagesEarnedOnDate(record, timeInEv.date);
+    // });
+    // return totalWages
+
 }
 
 function calculatePayroll(arrEmRecords){
-    let payrollSum = 0;
-    arrEmRecords.forEach(record =>{
-        payrollSum += allWagesFor(record);
-    })
-    return payrollSum;
+    return arrEmRecords.reduce((w, e) => w + allWagesFor(e), 0)
+
+    //less optimal code below::::
+    //let payrollSum = 0;
+    // arrEmRecords.forEach(record =>{
+    //     payrollSum += allWagesFor(record);
+    // })
+    //return payrollSum;
 }
 
-// const testRecord = {
-//     firstName: 'tj',
-//     familyName: 'stifter',
-//     title: 'student',
-//     payPerHour: 2,
-//     timeInEvents: [{
-//         type: 'TimeIn',
-//         hour: 0800,
-//         date: '2023-06-05',
-//     },
-//     {
-//         type: 'TimeIn',
-//         hour: 0900,
-//         date: '2022-06-05',
-//     }],
-//     timeOutEvents: [{
-//         type: "TimeOut",
-//         hour: 1200,
-//         date: '2023-06-05',
-//     },
-//     {
-//         type: "TimeOut",
-//         hour: 1600,
-//         date: '2022-06-05',
-//     }],
-// }
